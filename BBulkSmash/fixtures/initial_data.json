@@ -1,0 +1,213 @@
+[
+  {
+    "model": "BBulkSmash.uacappconfig",
+    "pk": 1,
+    "fields": {
+      "uac_key": "uac_1",
+      "uac_config_name": "UAC 1",
+      "select_uac": "uac_basic.xml",
+      "uac_remote": "10.0.0.10",
+      "uac_remote_port": 5060,
+      "uac_local": "10.0.0.5",
+      "uac_local_port": 5060,
+      "uac_protocol": "un",
+      "called_party": "",
+      "calling_party": "",
+      "total_no_of_calls": 1,
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "stun_server": null,
+      "is_active_config": true
+    }
+  },
+  {
+    "model": "BBulkSmash.uacappconfig",
+    "pk": 2,
+    "fields": {
+      "uac_key": "uac_2",
+      "uac_config_name": "UAC 2",
+      "select_uac": "uac_basic.xml",
+      "uac_remote": "10.0.0.11",
+      "uac_remote_port": 5060,
+      "uac_local": "10.0.0.6",
+      "uac_local_port": 5060,
+      "uac_protocol": "un",
+      "called_party": "",
+      "calling_party": "",
+      "total_no_of_calls": 1,
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "stun_server": null,
+      "is_active_config": false
+    }
+  },
+  {
+    "model": "BBulkSmash.uacappconfig",
+    "pk": 3,
+    "fields": {
+      "uac_key": "uac_3",
+      "uac_config_name": "UAC 3",
+      "select_uac": "uac_basic.xml",
+      "uac_remote": "10.0.0.12",
+      "uac_remote_port": 5060,
+      "uac_local": "10.0.0.7",
+      "uac_local_port": 5060,
+      "uac_protocol": "un",
+      "called_party": "",
+      "calling_party": "",
+      "total_no_of_calls": 1,
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "stun_server": null,
+      "is_active_config": false
+    }
+  },
+  {
+    "model": "BBulkSmash.uacappconfig",
+    "pk": 4,
+    "fields": {
+      "uac_key": "uac_4",
+      "uac_config_name": "UAC 4",
+      "select_uac": "uac_basic.xml",
+      "uac_remote": "10.0.0.13",
+      "uac_remote_port": 5060,
+      "uac_local": "10.0.0.8",
+      "uac_local_port": 5060,
+      "uac_protocol": "un",
+      "called_party": "",
+      "calling_party": "",
+      "total_no_of_calls": 1,
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "stun_server": null,
+      "is_active_config": false
+    }
+  },
+  {
+    "model": "BBulkSmash.uacappconfig",
+    "pk": 5,
+    "fields": {
+      "uac_key": "uac_5",
+      "uac_config_name": "UAC 5",
+      "select_uac": "uac_basic.xml",
+      "uac_remote": "10.0.0.14",
+      "uac_remote_port": 5060,
+      "uac_local": "10.0.0.9",
+      "uac_local_port": 5060,
+      "uac_protocol": "un",
+      "called_party": "",
+      "calling_party": "",
+      "total_no_of_calls": 1,
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "stun_server": null,
+      "is_active_config": false
+    }
+  },
+  
+  {
+    "model": "BBulkSmash.uasappconfig",
+    "pk": 1,
+    "fields": {
+      "uas_key": "uas_1",
+      "uas_config_name": "UAS 1",
+      "select_uas": "uas_basic.xml",
+      "uas_remote": "10.0.0.20",
+      "uas_remote_port": 5060,
+      "uas_local": "10.0.0.5",
+      "uas_local_port": 5060,
+      "uas_protocol": "un",
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "is_active_config": true
+    }
+  },
+  {
+    "model": "BBulkSmash.uasappconfig",
+    "pk": 2,
+    "fields": {
+      "uas_key": "uas_2",
+      "uas_config_name": "UAS 2",
+      "select_uas": "uas_basic.xml",
+      "uas_remote": "10.0.0.21",
+      "uas_remote_port": 5060,
+      "uas_local": "10.0.0.6",
+      "uas_local_port": 5060,
+      "uas_protocol": "un",
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "is_active_config": false
+    }
+  },
+  {
+    "model": "BBulkSmash.uasappconfig",
+    "pk": 3,
+    "fields": {
+      "uas_key": "uas_3",
+      "uas_config_name": "UAS 3",
+      "select_uas": "uas_basic.xml",
+      "uas_remote": "10.0.0.22",
+      "uas_remote_port": 5060,
+      "uas_local": "10.0.0.7",
+      "uas_local_port": 5060,
+      "uas_protocol": "un",
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "is_active_config": false
+    }
+  },
+  {
+    "model": "BBulkSmash.uasappconfig",
+    "pk": 4,
+    "fields": {
+      "uas_key": "uas_4",
+      "uas_config_name": "UAS 4",
+      "select_uas": "uas_basic.xml",
+      "uas_remote": "10.0.0.23",
+      "uas_remote_port": 5060,
+      "uas_local": "10.0.0.8",
+      "uas_local_port": 5060,
+      "uas_protocol": "un",
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "is_active_config": false
+    }
+  },
+  {
+    "model": "BBulkSmash.uasappconfig",
+    "pk": 5,
+    "fields": {
+      "uas_key": "uas_5",
+      "uas_config_name": "UAS 5",
+      "select_uas": "uas_basic.xml",
+      "uas_remote": "10.0.0.24",
+      "uas_remote_port": 5060,
+      "uas_local": "10.0.0.9",
+      "uas_local_port": 5060,
+      "uas_protocol": "un",
+      "cps": 1,
+      "max_ccl": 1,
+      "min_rtp_port": 10000,
+      "max_rtp_port": 20000,
+      "is_active_config": false
+    }
+  }
+]

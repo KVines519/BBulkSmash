@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBulkSmash Scenario Builder</title>
+  {% load static %}
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <!-- Include the Ace Editor library -->
+  <script src="{% static 'ace/ace.js' %}"></script>
+  <script src="{% static 'ace/mode-xml.js' %}"></script>
+  <script src="{% static 'ace/worker-xml.js' %}"></script>
+  <script src="{% static 'ace/theme-chrome.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+  <style>
+
+    .main-container {
+      display: flex;
+      flex: 1;
+      gap: 10px;
+      overflow: hidden;
+      padding: 10px;
+      height: calc(100% - 80px);
+    }
+    #scenario-creator {
+      width: 39%;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    .editor-wrapper {
+      width: 61%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #scen-creator-ace-form {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    #xml-editor {
+      flex: 1;
+      height: 100%;
+    }
+
+  </style>
+</head>
+<body>
+  {% include "header.html" %}
+  <h1 class="newpageh1">Create your sipP scenario</h1>
+
+  <div class="main-container">
+    <div id="scenario-creator">
+
+  <button id="createUAC">UAC</button>
+  <button id="createUAS">UAS</button>
+  <button id="reset" style="display: none;">Reset</button>
+  <button id="exit" onclick="window.location='/'">Exit</button>
+
+  <div id="scen-d" style="margin: 10px 0; display: none;">
+    <input name="scenario-name" id="scenario-name" value="scenario_name">
+    <button id="start">Start</button>
+  </div>
+
+<!-- ***************** Buttons for UAC xml start ******************** -->
+  <div id="uacFirst" style="display: none;">
+    <button id="send-invite">Send INVITE</button>
+      <div id="send-invite-div" style="display: none;">
+        <button id="invite-with-sdp">invite with SDP</button>
+        <button id="invite-without-sdp">without SDP</button>
+      </div>
+
+    <div id="recv-1xx" style="display: none;">
+      <button id="recv-180">Recv 180</button>
+      <button id="recv-183">Recv 183</button>
+      <div id="100rel-d" style="display: none;">
+        <button id="100-rel">Reliable</button>
+        <button id="no-100-rel">Non-Reliable</button>
+      </div>
+    </div>
+    <div id="prack-d" style="display: none;">
+      <button id="p-wo-sdp-b">Send PRACK without sdp</button>
+      <button id="p-with-sdp-b">PRACK with sdp</button>
+      <button id="recv-200prack-b" style="display: none;">Recv 200OK (prack)</button>
+    </div>
+
+    <div id="recv-2xx" style="display: none;">
+      <button id="recv-200">Recv 200OK (invite)</button>
+    </div>
+
+    <div id="recv-failcode" style="display: none;">
+      <br>
+      <button id="recv-fxx">Recv 4xx/5xx/6xx</button>
+      <div id="recv-cause" style="display: none;">
+        CauseCode: <input id="r-cause-code" type="number" min="400" max="699" value="503">
+        <button id="fail-ack">Recv this and Send ACK</button>
+      </div>
+    </div>
+
+    <div id="send-ack-div" style="display: none;">
+      <button id="send-ack">Send ACK without sdp</button>
+      <button id="send-ack-sdp">ACK with sdp</button>
+    </div>
+
+    <br>
+
+      <button id="play-media-b" style="display: none;">Play Media</button>
+
+    <div id="pause-d" style="display: none;">
+      <button id="pause-b">Pause</button>
+      <input id="pause-ms" type="number" min="1" max="999999" value="1000"> ms
+    </div>
+
+    <br><br>
+
+    <div id="mid-dia-req" style="display: none;">
+      <button id="reinv-b">Send Re-INVITE</button>
+      <button id="update-b">Send UPDATE</button>
+    </div>
+    <div id="mid-dia-sdp-div" style="display: none;">
+      <button id="mid-without-sdp">without SDP</button>
+      <button id="mid-with-sdp">with SDP</button>
+    </div>
+    <button id="mid-req-200-b" style="display: none;">Recv 200OK</button>
+
+    <br>
+
+    <div id="uac-r-mid-req-d" style="display:none;">
+      <button id="uac-r-mid-invite-b">Recv INVITE</button>
+      <button id="uac-r-mid-update-b">Recv UPDATE</button>
+    </div>
+    <div id="uac-s-mid-200-d" style="display:none;">
+      <button id="uac-s-mid-200-sdp-b">Send 200OK with SDP</button>
+      <button id="uac-s-mid-200-nosdp-b">200OK without SDP</button>
+      <button id="uac-r-mid-ack-b" style="display:none;">Recv ACK</button>
+    </div>
+    
+    <br>
+
+    <div id="sendrecv-bye" style="display: none;">
+      <button id="send-bye">Send BYE</button>
+      <button id="recv-bye">Recv BYE</button>
+    </div>
+
+  </div>
+
+<!-- ***************** Buttons for UAC xml end ******************** -->
+<!-- ***************** Buttons for UAS xml start ******************** -->
+
+  <div id="uasFirst" style="display: none;">
+    <button id="recv-invite-b">Recv INVITE</button>
+    
+    <div id="send-1xx-d" style="display: none;">
+      <button id="send-100-b">Send 100</button>
+      <button id="send-180-b">Send 180</button>
+      <button id="send-183-b">Send 183</button>
+      <div id="s-100rel-d" style="display: none;">
+        <button id="s-100-rel">Reliable</button>
+        <button id="s-no-100-rel">Non-Reliable</button>
+      </div>
+    </div>
+    <div id="s1xx-sdp-d" style="display: none;">
+      <button id="s1xx-wo-sdp-b">without sdp</button>
+      <button id="s1xx-with-sdp-b">with sdp</button>
+    </div>
+    <div id="s-prack-d" style="display: none;">
+      <button id="recv-prack-b" style="display: none;">Recv PRACK</button>
+      <button id="send-200p-b" style="display: none;">Send 200OK (prack) without SDP</button>
+      <button id="send-200p-sdp-b" style="display: none;">200OK (prack) with SDP</button>
+    </div>
+    <div>
+      <button id="send-200-inv-b" style="display: none;">Send 200OK (invite) with SDP</button>
+      <button id="send-200-inv-no-sdp-b" style="display: none;">200OK (invite) without SDP</button>
+    </div>
+      <button id="recv-ack" style="display: none;">Recv ACK</button>
+    
+    <br>
+    
+    <div id="uas-recv-rqst" style="display: none;">
+      <button id="uas-recv-update-b">Recv UPDATE</button>
+      <button id="uas-200-update-sdp" style="display: none;">Send 200OK(update) with SDP</button>
+      <button id="uas-200-update-nosdp" style="display: none;">200OK(update) without SDP</button>
+    </div>
+
+    <br>
+
+    <div id="uas-send-request" style="display: none;">
+      <button id="uas-send-inv-b">Send INVITE</button>
+      <button id="uas-send-update-b">Send Update</button>
+    </div>
+    <div id="uas-send-inv" style="display: none;">
+      <button id="uas-send-inv-sdp-b">Send INVITE with SDP</button>
+      <button id="uas-send-inv-nosdp-b">without SDP</button>
+    </div>
+    <div id="uas-send-update" style="display: none;">
+      <button id="uas-send-update-sdp-b">Send UPDATE with SDP</button>
+      <button id="uas-send-update-nosdp-b">without SDP</button>
+    </div>
+    <div id="uas-recv200-sendack" style="display: none;">
+      <button id="uas-recv-200">Recv 200OK</button>
+      <button id="uas-send-ack-nosdp" style="display: none;">Send Ack</button>
+      <button id="uas-send-ack-sdp" style="display: none;">Send Ack with SDP</button>
+    </div>
+    <br>
+
+    <div id="uas-bye" style="display: none;">
+      <button id="uas-recv-bye">Recv BYE</button>
+      <button id="uas-send-bye">Send BYE</button>
+    </div>
+
+
+  </div>
+<!-- ***************** Buttons for UAS xml end ******************** -->
+
+    <div class="savebuttons">
+      <button type="button" onclick="showFileNamePrompt()" id="save_as_button" style="display: none;">Save as a new xml</button>
+      <div id="fileNamePrompt" style="display: none;">
+        <b><span id="sv-scen-type">uac_</span></b>
+        <input type="text" name="new_xml_name" id="new_xml_name" maxlength="35" value="">
+        <span>.xml</span>
+        <button type="button" onclick="submitSaveAs()">Save</button>
+      </div>
+    </div>
+    {% if xml_name %}
+    Successfully Saved to <b>{{ xml_name }}</b>
+    <script>
+      document.getElementById("createUAC").style.display = "none";
+      document.getElementById("createUAS").style.display = "none";
+      document.getElementById("reset").style.display = "inline-block";
+    </script>
+    {% endif %}
+
+  </div> <!-- scenario-creator div end -->
+
+  <div class="editor-wrapper">
+    <form id="scen-creator-ace-form" method="post" action="{% url 'create_scenario_xml' %}">
+      {% csrf_token %}
+      <input type="hidden" name="xml_content" id="xmlContentInput">
+      <input type="hidden" name="file_name" >
+      <div id="xml-editor">{% if xml_content %}{{ xml_content }}{% endif %}</div>
+    </form>
+  </div>
+  </div> <!-- main-container div end -->
+
+  <script src="{% static 'createUACxml.js' %}"></script>
+  <script src="{% static 'createUASxml.js' %}"></script>
+
+  <script>
+  
+  var editor = ace.edit("xml-editor");
+  editor.session.setMode("ace/mode/xml");
+  editor.setTheme("ace/theme/chrome");
+  editor.setFontSize('13px');
+  editor.commands.addCommand({
+    name: "find",
+    bindKey: { win: "Ctrl-F", mac: "Command-F" },
+    exec: function(editor) {
+        editor.execCommand("find");
+    }
+  });
+  // Scroll to the bottom line
+  editor.session.on('change', () => {
+      editor.renderer.scrollToLine(Number.POSITIVE_INFINITY)
+  })
+  // Update the hidden input with the XML content before submitting the form
+  var xmlContentInput = document.getElementById("xmlContentInput");
+  editor.getSession().on("change", function () {
+      var xmlContent = editor.getValue();
+      xmlContentInput.value = xmlContent;
+  })
+
+  // Save as file name prompt
+  function showFileNamePrompt() {
+    var svScenType=document.getElementById("sv-scen-type");
+    svScenType.textContent=sceType + "_";
+    var scenarioName=document.getElementById("scenario-name");
+    document.getElementById("new_xml_name").value=scenarioName.value.trim();
+
+    var fileNamePrompt = document.getElementById("fileNamePrompt");
+    fileNamePrompt.style.display = "inline";
+    var saveAsButton = document.getElementById("save_as_button")
+    saveAsButton.style.display = "none"
+  }
+
+
+  // function for xml validation
+  function validateAndSubmit() {
+      var annotations = editor.getSession().getAnnotations();
+      var hasErrors = annotations.some(annotation => annotation.type === "error");
+
+      if (hasErrors) {
+          alert("There are syntax errors. Please fix them before saving.");
+          return false;
+      } else {
+          document.querySelector("form").submit();
+      }
+  }
+
+  function submitSaveAs() {
+      var newFileNameInput = document.getElementById("new_xml_name");
+      var newFileName = newFileNameInput.value.trim();
+      document.getElementById('scen-creator-ace-form').querySelector('input[name="file_name"]').value = sceType + "_" + newFileName +".xml";
+      
+      if (newFileName) {
+          validateAndSubmit();
+      } else {
+          alert("Please enter a valid file name.");
+      }
+  }
+
+  document.getElementById("new_xml_name").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+          event.preventDefault(); // Prevent form submission
+          submitSaveAs();
+      }
+  });
+
+  
+  </script>
+
+{% include "footer.html" %}
+</body>
+</html>

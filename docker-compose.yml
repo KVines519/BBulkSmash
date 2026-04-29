@@ -1,0 +1,28 @@
+services:
+  bbulksmash:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: "host"
+    environment:
+      # Required: set a strong random secret key. Generate one with:
+      #   python -c "import secrets; print(secrets.token_urlsafe(64))"
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-}
+      # Required for POST requests: comma-separated list of origins you access the app from.
+      # Example: http://192.168.1.100,http://localhost
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS:-}
+      # Optional: comma-separated allowed hosts (defaults to * if not set)
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-*}
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - bbulksmash_db:/app/db_data
+      - bbulksmash_logs:/app/logs
+      - bbulksmash_xml:/app/BBulkSmash/xml
+
+volumes:
+  bbulksmash_db:
+  bbulksmash_logs:
+  bbulksmash_xml:

@@ -1,0 +1,29 @@
+<nav class="navbar">
+    <div>
+        <a href="/" class="logo">
+            <span class="logo-title">
+                <span class="logo-easy">BBulk</span><span class="logo-sipp">Smash</span>
+            </span><br>
+            <span class="logo-tagline">SIP Testing for Secure Comms</span>
+        </a>
+    </div> 
+
+    <div class="menubar">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/file-management/">File Management</a>
+        <a class="nav-link" href="/create-scenario-xml/">Scenario Builder</a>
+    </div>
+</nav>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentLocation = window.location.pathname;
+        const menuLinks = document.querySelectorAll('.menubar .nav-link');
+    
+        menuLinks.forEach(link => {
+            if (link.getAttribute('href') === currentLocation) {
+                link.classList.add('active');
+            }
+        });
+    });    
+</script>

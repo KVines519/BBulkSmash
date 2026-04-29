@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ xml_name }}</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <!-- Include the Ace Editor library -->
+    <script src="{% static 'ace/ace.js' %}"></script>
+    <script src="{% static 'ace/mode-xml.js' %}"></script>
+    <script src="{% static 'ace/worker-xml.js' %}"></script>
+    <script src="{% static 'ace/theme-chrome.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+
+<body>
+    {% include "header.html" %}
+    
+    <!-- Create a div to contain the editor -->
+    <h1 class="newpageh1">{{ xml_name }}</h1>
+    <form method="post" action="{% url 'edit-xml' %}">
+    {% csrf_token %}
+    <input type="hidden" name="xml_content" id="xmlContentInput" value="{{ xml_content }}">
+    <input type="hidden" name="xml_name" value="{{ xml_name }}">
+    <div id="xml-editor">{{ xml_content }}</div>
+
+    <div class="savebuttons">
+        <button type="button" onclick="validateAndSubmit('save')">Update XML Scenario</button>  Or
+        <button type="button" onclick="showFileNamePrompt()" id="save_as_button">Copy XML Scenario</button>
+
+        {%if error_msg %}
+        <div id="fileNamePrompt" style="display: inline;">
+        {% else %}
+        <div id="fileNamePrompt" style="display: none;">
+        {% endif %}
+            <b><span>{% if xml_name|slice:"0:3" == "uac" %}uac_{% elif xml_name|slice:"0:3" == "uas" %}uas_{% endif %}</span></b>
+            <input type="text" name="new_xml_name" id="new_xml_name" maxlength="35" value="">
+            <span>.xml</span>
+            <button type="button" onclick="submitSaveAs()">Save</button>
+        </div>
+        <input type="hidden" name="exit" value="{{referer}}">
+        <button type="submit" name="exit" value="{{referer}}">Exit</button>
+        <input type="hidden" name="save" id="clickedButtonInput" value="">
+        {% if save %}
+        Successfully Saved to <b>{{ xml_name }}</b>
+        {% endif %}
+        {% if error_msg %}
+        <span style="color: red;">{{ error_msg }}</span>
+        {% endif %}
+    </div>
+    </form>
+
+    <!-- Initialize the editor -->
+    <script>
+        var editor = ace.edit("xml-editor");
+        editor.session.setMode("ace/mode/xml");
+        editor.setTheme("ace/theme/chrome");
+        editor.setFontSize('14px');
+        editor.commands.addCommand({
+            name: "find",
+            bindKey: { win: "Ctrl-F", mac: "Command-F" },
+            exec: function(editor) {
+                editor.execCommand("find");
+            }
+        });
+
+        // Update the hidden input with the XML content before submitting the form
+        var xmlContentInput = document.getElementById("xmlContentInput");
+        editor.getSession().on("change", function () {
+            var xmlContent = editor.getValue();
+            xmlContentInput.value = xmlContent;
+        })
+
+        function validateAndSubmit(action) {
+            var annotations = editor.getSession().getAnnotations();
+            var hasErrors = annotations.some(annotation => annotation.type === "error");
+
+            if (hasErrors) {
+                alert("There are syntax errors. Please fix them before saving.");
+                return false;
+            } else {
+                var clickedButtonInput = document.getElementById("clickedButtonInput");
+                clickedButtonInput.value = action;
+                document.querySelector("form").submit();
+            }
+        }
+
+
+        function showFileNamePrompt() {
+            var fileNamePrompt = document.getElementById("fileNamePrompt");
+            fileNamePrompt.style.display = "inline";
+            var saveAsButton = document.getElementById("save_as_button")
+            saveAsButton.style.display = "none"
+        }
+
+
+        function submitSaveAs() {
+            var newFileNameInput = document.getElementById("new_xml_name");
+            var newFileName = newFileNameInput.value.trim();
+            
+            if (newFileName) {
+                validateAndSubmit('save_as');
+            } else {
+                alert("Please enter a valid file name.");
+            }
+        }
+
+        document.getElementById("new_xml_name").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent form submission
+                submitSaveAs();
+            }
+        });
+
+    </script>
+
+{% include "footer.html" %}
+</body>
+</html>
+
+
