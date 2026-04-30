@@ -33,7 +33,7 @@ RUN mkdir -p BBulkSmash/xml/tmp BBulkSmash/xml/backup logs db_data && \
     cp BBulkSmash/xml/*.xml BBulkSmash/xml/backup
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+RUN DJANGO_SECRET_KEY=build-time-placeholderpython manage.py collectstatic --noinput
 
 # Create non-root user
 RUN addgroup --gid 1234 bbuser && \
