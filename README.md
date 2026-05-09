@@ -87,7 +87,7 @@ docker compose up --build
 
 ### 4. Access the app
 
-Open your browser at: `http://localhost:8080`
+Open your browser at: `http://<dockerhost>:8080`
 
 ---
 
