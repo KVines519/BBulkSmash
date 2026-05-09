@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBulkSmash File Management</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <style>
+        /* ── File table ─────────────────────────────────────────────────── */
+        .fm-table-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 4px;
+            background: #cfcfcf;
+            border-bottom: 1px solid #b0b0b0;
+        }
+        .fm-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .fm-table thead tr {
+            background: #66798c;
+            color: #fff;
+        }
+        .fm-table thead th {
+            padding: 6px 10px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .fm-table tbody tr:hover { background: #f0f0f0 !important; }
+        .fm-table tbody td { padding: 5px 10px; vertical-align: middle; }
+        .fm-table tr.fm-selected td { background: #c8d4de !important; }
+
+        /* ── Delete confirm modal ───────────────────────────────────────── */
+        #delete-confirm-modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            justify-content: center;
+            align-items: center;
+        }
+        #delete-confirm-modal .dcm-box {
+            background: #cfcfcf;
+            border: 2px solid #66798c;
+            border-radius: 6px;
+            padding: 24px 28px;
+            min-width: 320px;
+            max-width: 520px;
+        }
+        #delete-confirm-modal h3 { margin: 0 0 10px 0; color: #334c65; }
+        #delete-confirm-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 8px 0 16px 0;
+            padding-left: 18px;
+            font-family: monospace;
+            font-size: 0.88em;
+        }
+        .dcm-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+    </style>
+</head>
+<body>
+    {% include "header.html" %}
+
+    <!-- CSRF token for AJAX delete -->
+    {% csrf_token %}
+
+    <!-- Toolbar -->
+    <div class="submenu-buttons">
+        <button class="button" id="upload-xml-b">Upload new</button>
+        <button class="button fm-tab-btn" data-panel="xml-panel">XML scenario files</button>
+        <button class="button fm-tab-btn" data-panel="pcap-panel">PCAP audio files</button>
+        <button class="button fm-tab-btn" data-panel="wav-panel">WAV audio files</button>
+        <button class="button fm-tab-btn" data-panel="csv-panel">CSV injection files</button>
+        <button class="button fm-tab-btn" data-panel="log-panel">Logs &amp; Trace files</button>
+    </div>
+
+    <!-- Upload modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content" style="display:block; width: 500px;">
+            <span class="close">&times;</span>
+            <h3>Upload new XML / CSV / PCAP / WAV</h3>
+            <form method="post" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                <p class="errorlist">{% if upload_msg %}{{ upload_msg }}{% endif %}</p>
+                {% if xml_upload_form.file.errors %}
+                <ul class="errorlist">
+                    {% for error in xml_upload_form.file.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {{ xml_upload_form.file }}
+                <button type="submit" name="submitType" value="upload" style="margin-top:10px;">Upload</button>
+                <p style="font-size:0.85em; color:#66798c;">XML file names must start with "uac" or "uas".</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div id="delete-confirm-modal">
+        <div class="dcm-box">
+            <h3>Confirm Delete</h3>
+            <p>Delete <strong id="delete-confirm-count"></strong>?</p>
+            <ul id="delete-confirm-list"></ul>
+            <div class="dcm-buttons">
+                <button id="delete-confirm-cancel" class="button">Cancel</button>
+                <button id="delete-confirm-ok" class="button" style="background:#c0392b;border-color:#c0392b;color:#fff;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File panels -->
+
+    <!-- XML panel: two-column UAC/UAS + flow diagram -->
+    <div id="xml-panel" class="fm-panel" style="display:none;">
+        <div id="xml-lists">
+            <div style="flex:1;">
+                <h3 style="margin:6px 0 4px 0; color:#334c65;">UAC Scenarios</h3>
+                <div id="uac-list-container"></div>
+            </div>
+            <div style="flex:1; margin-left:8px;">
+                <h3 style="margin:6px 0 4px 0; color:#334c65;">UAS Scenarios</h3>
+                <div id="uas-list-container"></div>
+            </div>
+            <div id="xml-flow" style="display:none;">
+                <div id="flow-diagram"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PCAP panel -->
+    <div id="pcap-panel" class="fm-panel" style="display:none;">
+        <div id="pcap-list-container"></div>
+    </div>
+
+    <!-- WAV panel -->
+    <div id="wav-panel" class="fm-panel" style="display:none;">
+        <div id="wav-list-container"></div>
+    </div>
+
+    <!-- CSV panel -->
+    <div id="csv-panel" class="fm-panel" style="display:none;">
+        <div id="csv-list-container"></div>
+    </div>
+
+    <!-- Log panel -->
+    <div id="log-panel" class="fm-panel" style="display:none;">
+        <div id="log-list-container"></div>
+    </div>
+
+    <!-- Data from Django — now [{name, mtime}, ...] objects -->
+    {{ uac_list|json_script:"uac-list-json" }}
+    {{ uas_list|json_script:"uas-list-json" }}
+    {{ pcap_list|json_script:"pcap-list-json" }}
+    {{ wav_list|json_script:"wav-list-json" }}
+    {{ csv_list|json_script:"csv-list-json" }}
+    {{ log_list|json_script:"log-list-json" }}
+
+    <script>
+        const uacXmlFiles = JSON.parse(document.getElementById('uac-list-json').textContent);
+        const uasXmlFiles = JSON.parse(document.getElementById('uas-list-json').textContent);
+        const pcapFiles   = JSON.parse(document.getElementById('pcap-list-json').textContent);
+        const wavFiles    = JSON.parse(document.getElementById('wav-list-json').textContent);
+        const csvFiles    = JSON.parse(document.getElementById('csv-list-json').textContent);
+        const logFiles    = JSON.parse(document.getElementById('log-list-json').textContent);
+        let kpacketId = 1;
+    </script>
+
+    <script src="{% static 'sdjs/snap.svg-min.js' %}"></script>
+    <script src="{% static 'sdjs/underscore-min.js' %}"></script>
+    <script src="{% static 'sdjs/sequence-diagram-kmod2.js' %}"></script>
+    <script src="{% static 'listXml.js' %}"></script>
+
+    {% if upload_msg or xml_upload_form.file.errors %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('upload-modal').style.display = 'block';
+        });
+    </script>
+    {% endif %}
+
+{% include "footer.html" %}
+</body>
+</html>

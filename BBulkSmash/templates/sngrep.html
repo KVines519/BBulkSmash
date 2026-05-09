@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SNGREP - Live SIP Monitor</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'xterm/xterm.min.css' %}">
+    <style>
+        .sngrep-container {
+            padding: 15px 20px 80px 20px;
+        }
+        .sngrep-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .sngrep-header h1 {
+            font-size: 1.3em;
+            margin: 0;
+        }
+        .sngrep-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sngrep-controls label {
+            font-size: 0.9em;
+            color: #555;
+        }
+        .sngrep-controls input[type="text"] {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .sngrep-controls button {
+            padding: 5px 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f8f8f8;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .sngrep-controls button:hover {
+            background: #e8e8e8;
+        }
+        .sngrep-controls button.active {
+            background: #28a745;
+            color: #fff;
+            border-color: #28a745;
+        }
+        .sngrep-status {
+            font-size: 0.85em;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .sngrep-status.connected { background: #d4edda; color: #155724; }
+        .sngrep-status.disconnected { background: #f8d7da; color: #721c24; }
+        .sngrep-status.connecting { background: #fff3cd; color: #856404; }
+        #sngrep-terminal {
+            width: 100%;
+            height: calc(100vh - 200px);
+            min-height: 400px;
+            background: #000;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .sngrep-hint {
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+{% include "header.html" %}
+
+<div class="sngrep-container">
+    <div class="sngrep-header">
+        <h1>SNGREP &mdash; Live SIP Monitor</h1>
+        <div class="sngrep-controls">
+            <button id="btnConnect" onclick="toggleConnection()">Start</button>
+            <span id="statusBadge" class="sngrep-status disconnected">Disconnected</span>
+        </div>
+    </div>
+
+    <div id="sngrep-terminal"></div>
+
+    <div class="sngrep-hint">
+        sngrep keyboard: <strong>&#8593;&#8595;</strong> navigate &nbsp;|&nbsp;
+        <strong>Enter</strong> view call flow &nbsp;|&nbsp;
+        <strong>F7</strong> filter &nbsp;|&nbsp;
+        <strong>F10 / q</strong> quit &nbsp;|&nbsp;
+        <strong>Space</strong> select &nbsp;|&nbsp;
+        <strong>?</strong> help
+    </div>
+</div>
+
+{% include "footer.html" %}
+
+<script src="{% static 'xterm/xterm.min.js' %}"></script>
+<script src="{% static 'xterm/addon-fit.min.js' %}"></script>
+<script src="{% static 'xterm/addon-web-links.min.js' %}"></script>
+<script>
+(function() {
+    let ws = null;
+    let term = null;
+    let fitAddon = null;
+
+    const termContainer = document.getElementById('sngrep-terminal');
+    const btnConnect = document.getElementById('btnConnect');
+    const statusBadge = document.getElementById('statusBadge');
+
+    function initTerminal() {
+        if (term) { term.dispose(); }
+        term = new Terminal({
+            cursorBlink: true,
+            fontSize: 14,
+            fontFamily: "'Cascadia Code', 'Fira Code', 'Consolas', monospace",
+            theme: {
+                background: '#1a1a2e',
+                foreground: '#e0e0e0',
+                cursor: '#00ff88',
+                selectionBackground: 'rgba(255,255,255,0.2)',
+            },
+            scrollback: 5000,
+            convertEol: true,
+        });
+
+        fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+        term.loadAddon(new WebLinksAddon.WebLinksAddon());
+
+        term.open(termContainer);
+        fitAddon.fit();
+
+        term.onData(function(data) {
+            if (ws && ws.readyState === WebSocket.OPEN) { ws.send(data); }
+        });
+
+        term.onBinary(function(data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const buf = new Uint8Array(data.length);
+                for (let i = 0; i < data.length; i++) { buf[i] = data.charCodeAt(i) & 0xff; }
+                ws.send(buf.buffer);
+            }
+        });
+
+        term.writeln('\x1b[36msngrep terminal ready. Click "Start" to begin capturing.\x1b[0m\r\n');
+    }
+
+    // BPF port list injected by Django
+    const bpfPorts = "{{ bpf_ports|join:',' }}";
+
+    function setStatus(state) {
+        statusBadge.className = 'sngrep-status ' + state;
+        statusBadge.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+    }
+
+    function connect() {
+        if (ws && ws.readyState === WebSocket.OPEN) { return; }
+
+        const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = wsProto + '//' + window.location.host + '/ws/sngrep/?ports=' + encodeURIComponent(bpfPorts);
+
+        setStatus('connecting');
+        term.clear();
+        term.writeln('\x1b[33mConnecting to sngrep...\x1b[0m\r\n');
+
+        ws = new WebSocket(wsUrl);
+        ws.binaryType = 'arraybuffer';
+
+        ws.onopen = function() {
+            setStatus('connected');
+            btnConnect.textContent = 'Stop';
+            btnConnect.classList.add('active');
+            sendResize();
+            term.focus();
+        };
+
+        ws.onmessage = function(event) {
+            if (event.data instanceof ArrayBuffer) {
+                term.write(new Uint8Array(event.data));
+            } else {
+                term.write(event.data);
+            }
+        };
+
+        ws.onclose = function() {
+            setStatus('disconnected');
+            btnConnect.textContent = 'Start';
+            btnConnect.classList.remove('active');
+            term.writeln('\r\n\x1b[31msngrep session ended.\x1b[0m');
+            ws = null;
+        };
+
+        ws.onerror = function(err) {
+            console.error('WebSocket error:', err);
+            term.writeln('\r\n\x1b[31m[ERROR] WebSocket connection failed.\x1b[0m');
+        };
+    }
+
+    function disconnect() {
+        if (ws) { ws.close(); ws = null; }
+    }
+
+    window.toggleConnection = function() {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            disconnect();
+        } else {
+            connect();
+        }
+    };
+
+    function sendResize() {
+        if (ws && ws.readyState === WebSocket.OPEN && term) {
+            ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+        }
+    }
+
+    window.addEventListener('resize', function() {
+        if (fitAddon) { fitAddon.fit(); sendResize(); }
+    });
+
+    initTerminal();
+})();
+</script>
+
+</body>
+</html>

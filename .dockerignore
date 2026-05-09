@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# Virtual envs
+venv/
+.env
+.env.*
+
+# Django / SQLite / Logs
+*.sqlite3
+*.log
+*.pid
+collectstatic/
+
+# Git
+.git/
+.gitignore
+
+# Docker-related
+docker-compose*
+compose*
+Dockerfile*
+
+# IDEs / Editors
+.vscode/
+.vs/
+
+BBulkSmash/sipp

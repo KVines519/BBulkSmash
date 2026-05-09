@@ -1,0 +1,283 @@
+:root {
+  --main-color: #334c65;
+  --light-bg: #dbdbdb;
+  --light-color: #334c65;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+body {
+  background-color: var(--light-bg);
+  color: var(--light-color);
+  margin: 10px;
+  font-family: Verdana, sans-serif;
+  font-size: 14px;
+  height: 100vh;
+}
+
+h1 a {
+  color: #334c65;
+  text-decoration: underline #99a5b2;
+}
+
+.label {
+  color: #334c65;
+  background-color: #dbdbdb;
+  line-height: 28px;
+  font-weight: bold;
+}
+
+.newpageh1 {
+  color: #334c65;
+  font-size: 18px;
+  background-color: #dbdbdb;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+
+.navbar {
+  display: flex;
+  align-items: end;
+  border-bottom: 4px solid #99a5b2;
+}
+
+.logo {
+  text-decoration: none;
+  display: inline-block;
+  padding: 2px 16px;
+  background: #dbdbdb;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s ease;
+}
+.logo:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+.logo-title {
+  font-weight: bold;
+  font-size: 28px;
+  text-decoration: underline 3px #cfcfcf;
+}
+.logo-easy { color: #334c65; }
+.logo-sipp { color: #b89d53; }
+.logo-tagline { color: #334c65; font-size: 12px; letter-spacing: 0.4px; }
+
+.menubar {
+  display: flex;
+  flex-grow: 1;
+  background-color: #334c65;
+}
+.menubar a {
+  color: #dbdbdb;
+  padding: 12px 16px;
+  text-decoration: none;
+  text-shadow: 0 0 4px #334c65;
+  font-size: 17px;
+}
+.menubar a:hover {
+  background-color: #dbdbdb;
+  color: #334c65;
+  text-shadow: none;
+}
+.menubar a.active {
+  background-color: #66798c;
+  color: white;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.button {
+  padding: 4px 16px;
+  background-color: #dbdbdb;
+  border: 2px solid #66798c;
+  color: #001f3f;
+  font-size: 16px;
+  display: inline-block;
+  cursor: pointer;
+}
+.button:hover  { background-color: #66798c; color: #ffffff; }
+.button.active { background-color: #66798c; color: #ffffff; }
+.button:disabled, .button[disabled] {
+  background-color: #dbdbdb;
+  color: #66798c;
+  border-color: #cfcfcf;
+  cursor: not-allowed;
+}
+
+.savebuttons { margin-top: 12px; float: left; }
+
+.submenu-buttons {
+  background: #dbdbdb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+}
+
+/* ── Icon buttons (download/edit/delete) ─────────────────────────────────── */
+
+.xml-li-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  transition: transform .2s;
+  color: #ababab;
+  text-decoration: none;
+}
+.xml-li-button:hover {
+  transform: scale(1.4);
+  color: #001f3f;
+  cursor: pointer;
+}
+
+.edit-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  transition: transform .2s;
+}
+.edit-icon:hover {
+  transform: scale(1.4);
+  cursor: pointer;
+}
+
+/* ── Lists ───────────────────────────────────────────────────────────────── */
+
+ul { list-style-type: none; }
+
+.selected { background-color: #66798c !important; color: #f3f3f3 !important; }
+.selected a { color: #f3f3f3; }
+.selected a:hover { color: #ffffff; }
+
+.show-flow { cursor: pointer; }
+
+/* ── XML Editor ──────────────────────────────────────────────────────────── */
+
+#xml-editor {
+  width: 100%;
+  height: 70vh;
+  min-height: 400px;
+  border: 1px solid #c3c3c3;
+}
+
+.xmlname { color: #001f3f; }
+
+/* ── Running SIPp list ───────────────────────────────────────────────────── */
+
+#running-sipp-list { padding-left: 0; }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #cfcfcf;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #c3c3c3;
+  min-width: 700px;
+  max-width: 90%;
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Flow diagram containers inside the modal */
+#flow-diagram1, #flow-diagram2 {
+  flex: 1;
+  width: 400px;
+  min-width: 400px;
+  height: auto;
+  border: 1px solid #dbdbdb;
+  padding: 10px;
+  overflow: auto;
+}
+
+/* Close button */
+.close {
+  color: #fff;
+  position: absolute;
+  top: 38px;
+  left: 56px;
+  font-size: 32px;
+  padding: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover, .close:focus { color: black; text-decoration: none; }
+
+/* ── Error / misc ────────────────────────────────────────────────────────── */
+
+.errorlist { color: red; }
+
+#logContainer { font-family: monospace; }
+
+/* ── File Management panels ──────────────────────────────────────────────── */
+
+.fm-panel { margin-top: 8px; }
+
+/* XML panel */
+#xml-lists {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+#xml-lists ul {
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+#uac-list li, #uas-list li {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  transition: transform .15s;
+}
+#uac-list li:nth-child(odd),  #uas-list li:nth-child(odd)  { background-color: #e7e7e7; }
+#uac-list li:nth-child(even), #uas-list li:nth-child(even) { background-color: #dbdbdb; }
+#uac-list li:hover, #uas-list li:hover { background-color: #f3f3f3; transform: scale(1.02); }
+
+#xml-flow {
+  flex: 1;
+  min-height: 0;
+  background-color: #cfcfcf;
+  text-align: center;
+}
+#xml-flow:empty, #xml-flow #flow-diagram:empty {
+  display: none;
+}
+
+/* PCAP / WAV / CSV / Log panels */
+.fm-file-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  padding: 4px 0;
+}
+.fm-file-grid li {
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  min-width: 240px;
+  max-width: 340px;
+  flex: 0 0 auto;
+}
+.fm-file-grid li:nth-child(odd)  { background-color: #e7e7e7; }
+.fm-file-grid li:nth-child(even) { background-color: #dbdbdb; }
+.fm-file-grid li:hover           { background-color: #f3f3f3; }
