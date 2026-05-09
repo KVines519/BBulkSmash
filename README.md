@@ -52,7 +52,7 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://gitlab.rim.net/athoc/BBulkSmash.git
+git clone https://github.com/KVines519/BBulkSmash.git
 cd BBulkSmash
 ```
 
